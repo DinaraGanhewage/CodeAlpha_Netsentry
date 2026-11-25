@@ -93,8 +93,8 @@ NetSentry/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Dinara-Gamhewage/NetSentry.git
-cd NetSentry
+git clone https://github.com/DinaraGanhewage/CodeAlpha_Netsentry.git
+cd CodeAlpha_Netsentry
 
 # 2. Create a virtual environment
 python -m venv venv

@@ -18,8 +18,7 @@ class InterfaceManager:
     def is_npcap_available(self) -> bool:
         """Return True if Scapy sees a working libpcap/Npcap provider."""
         try:
-            ifaces = get_working_ifaces()
-            return bool(ifaces) or bool(getattr(conf, "use_pcap", False))
+            return bool(getattr(conf, "use_pcap", False))
         except Exception as exc:
             logger.warning("Npcap availability check failed: %s", exc)
             return False
