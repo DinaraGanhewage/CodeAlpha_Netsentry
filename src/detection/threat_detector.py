@@ -105,8 +105,16 @@ class ThreatDetector:
         current_time = now if now is not None else time.time()
         new_alerts: list[dict[str, Any]] = []
 
-        # 1. Possible Port Scan Detection (TCP/UDP traffic to multiple ports on a target)
-        if dest_ip and dest_port is not None and protocol in ("TCP", "UDP"):
+        # 1. Possible Port Scan Detection
+        # For live TCP traffic (where tcp_flags is present), only count SYN-only packets
+        # so normal established data/response traffic (ACK/PSH) does not cause false positives.
+        tcp_flags = packet_info.get("tcp_flags")
+        is_tcp_syn_only = protocol == "TCP" and (
+            tcp_flags is None or ("SYN" in tcp_flags and "ACK" not in tcp_flags)
+        )
+        is_probe_or_conn = is_tcp_syn_only or protocol == "UDP"
+
+        if dest_ip and dest_port is not None and is_probe_or_conn:
             alert = self._check_port_scan(source_ip, dest_ip, int(dest_port), current_time)
             if alert:
                 new_alerts.append(alert)
@@ -117,8 +125,9 @@ class ThreatDetector:
             if alert:
                 new_alerts.append(alert)
 
-        # 3. Repeated Connection Attempt Detection
-        if dest_ip and protocol in ("TCP", "UDP"):
+        # 3. Repeated Connection Attempt Detection (TCP SYN attempts only;
+        # UDP streams like QUIC/HTTP3 and video send many data packets per second)
+        if dest_ip and is_tcp_syn_only:
             alert = self._check_repeated_connections(source_ip, dest_ip, current_time)
             if alert:
                 new_alerts.append(alert)
