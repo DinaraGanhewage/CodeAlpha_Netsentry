@@ -31,6 +31,10 @@ Desktop.ini
 # NetSentry output (generated at runtime)
 output/
 *.db
+*.sqlite
+*.sqlite3
+*.pcap
+*.pcapng
 
 # Logs
 *.log
