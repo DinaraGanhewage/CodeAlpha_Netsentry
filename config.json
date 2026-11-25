@@ -1,0 +1,40 @@
+{
+    "capture": {
+        "default_interface": null,
+        "packet_buffer_size": 1000,
+        "batch_size": 100,
+        "batch_timeout_seconds": 5
+    },
+    "dashboard": {
+        "host": "127.0.0.1",
+        "port": 5000,
+        "polling_interval_ms": 2000
+    },
+    "detection": {
+        "port_scan": {
+            "threshold_ports": 15,
+            "time_window_seconds": 60,
+            "cooldown_seconds": 300
+        },
+        "dns_spike": {
+            "threshold_queries": 50,
+            "time_window_seconds": 30,
+            "cooldown_seconds": 300
+        },
+        "repeated_connection": {
+            "threshold_connections": 20,
+            "time_window_seconds": 30,
+            "cooldown_seconds": 300
+        }
+    },
+    "database": {
+        "path": "output/netsentry.db"
+    },
+    "logging": {
+        "level": "INFO",
+        "log_file": "output/logs/netsentry.log"
+    },
+    "output": {
+        "export_directory": "output/exports"
+    }
+}
