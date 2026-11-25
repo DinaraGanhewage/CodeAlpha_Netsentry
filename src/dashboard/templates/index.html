@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetSentry — Network Packet Analyzer &amp; Security Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-icon">🛡️</span>
+            <div>
+                <h1>NetSentry</h1>
+                <p class="subtitle">Smart Network Packet Analyzer &amp; Security Monitor</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="status-pill" id="captureStatusPill">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Idle</span>
+            </div>
+            <select id="interfaceSelect" aria-label="Network Interface">
+                <option value="">Auto-select interface</option>
+            </select>
+            <button id="startBtn" class="btn btn-primary">Start Capture</button>
+            <button id="stopBtn" class="btn btn-danger" disabled>Stop Capture</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="errorBanner" class="error-banner hidden"></div>
+
+        <!-- Overview Cards -->
+        <section class="stats-grid">
+            <div class="card stat-card">
+                <span class="stat-label">Total Packets</span>
+                <span class="stat-value" id="totalPackets">0</span>
+            </div>
+            <div class="card stat-card">
+                <span class="stat-label">Traffic Volume</span>
+                <span class="stat-value" id="totalBytes">0 B</span>
+            </div>
+            <div class="card stat-card">
+                <span class="stat-label">Packets / sec</span>
+                <span class="stat-value" id="packetsPerSec">0.0</span>
+            </div>
+            <div class="card stat-card">
+                <span class="stat-label">Security Alerts</span>
+                <span class="stat-value alert-count" id="totalAlerts">0</span>
+            </div>
+        </section>
+
+        <!-- Traffic Analytics Charts -->
+        <section class="charts-grid">
+            <div class="card">
+                <h2>Protocol Distribution (Transport Layer)</h2>
+                <div class="chart-wrapper">
+                    <canvas id="protocolChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Traffic Volume Over Time</h2>
+                <div class="chart-wrapper">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Talkers & Reports -->
+        <section class="two-col-grid">
+            <div class="card">
+                <h2>Top Source &amp; Destination IPs</h2>
+                <div class="ip-lists">
+                    <div>
+                        <h3>Top Sources</h3>
+                        <ul id="topSourcesList" class="ip-list">
+                            <li class="muted">No traffic recorded yet</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Top Destinations</h3>
+                        <ul id="topDestinationsList" class="ip-list">
+                            <li class="muted">No traffic recorded yet</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Reports &amp; Exports</h2>
+                <p class="muted">Export captured packet metadata or security alerts for offline analysis.</p>
+                <div class="export-actions">
+                    <a href="/api/export/csv" class="btn btn-secondary">Export Packets (CSV)</a>
+                    <a href="/api/export/json" class="btn btn-secondary">Export Session (JSON)</a>
+                    <a href="/api/export/alerts/csv" class="btn btn-secondary">Export Alerts (CSV)</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Alerts Panel -->
+        <section class="card">
+            <div class="section-header">
+                <h2>Security Alerts</h2>
+                <span class="badge badge-info">Heuristic Indicators — Potential Suspicious Activity</span>
+            </div>
+            <div id="alertsContainer" class="alerts-list">
+                <p class="muted">No suspicious activity detected.</p>
+            </div>
+        </section>
+
+        <!-- DNS Monitoring Section -->
+        <section class="card">
+            <div class="section-header">
+                <h2>DNS Monitoring</h2>
+                <span class="badge badge-info" id="dnsSummaryBadge">0 Queries | 0 Domains</span>
+            </div>
+            <p class="notice">
+                <strong>Note:</strong> Passive DNS inspection only sees unencrypted DNS traffic (port 53).
+                Encrypted DNS over HTTPS (DoH) and DNS over TLS (DoT) hide query domains from packet inspection.
+            </p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Source IP</th>
+                            <th>DNS Server</th>
+                            <th>Domain</th>
+                            <th>Type</th>
+                            <th>Response IP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dnsTableBody">
+                        <tr><td colspan="6" class="muted">No DNS queries captured yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Live Packet Table -->
+        <section class="card">
+            <div class="section-header">
+                <h2>Live Packet Metadata</h2>
+                <span class="badge badge-info" id="packetTableCount">Showing latest 50</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Time</th>
+                            <th>Source IP</th>
+                            <th>Destination IP</th>
+                            <th>Ports</th>
+                            <th>Protocol</th>
+                            <th>Size</th>
+                            <th>Direction</th>
+                            <th>Info</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packetTableBody">
+                        <tr><td colspan="9" class="muted">Waiting for packets...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

@@ -199,10 +199,10 @@ This is a fundamental limitation of passive packet inspection, not a bug.
 ## 📅 Development Roadmap
 
 - [x] Project planning and architecture
-- [ ] Week 1: Packet capture and analysis
-- [ ] Week 2: Security analysis and storage
-- [ ] Week 3: Web dashboard
-- [ ] Week 4: Testing and finalization
+- [x] Week 1: Packet capture and analysis
+- [x] Week 2: Security analysis and storage
+- [x] Week 3: Web dashboard
+- [x] Week 4: Testing and finalization
 
 ## 📄 License
 
